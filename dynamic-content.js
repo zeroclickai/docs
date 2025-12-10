@@ -1,6 +1,6 @@
 window.AUTH_TOKEN_HERE = 'TEST-TOKEN';
 
-(function() {
+function replaceContent() {
     const replace = () => {
       const walker = document.createTreeWalker(
         document.body,
@@ -24,4 +24,6 @@ window.AUTH_TOKEN_HERE = 'TEST-TOKEN';
     } else {
       replace();
     }
-  })();
+}
+
+window.replaceContent = replaceContent;
