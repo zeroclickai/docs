@@ -1,6 +1,4 @@
-window.AUTH_TOKEN_HERE = 'TEST-TOKEN';
-
-function replaceContent() {
+function replaceContent(source) {
     const replace = () => {
       const walker = document.createTreeWalker(
         document.body,
@@ -13,7 +11,7 @@ function replaceContent() {
         if (node.textContent.includes('((')) {
           node.textContent = node.textContent.replace(
             /\(\((\w+)\)\)/g,
-            (match, name) => window[name] ?? match
+            (match, name) => source[name] ?? match
           );
         }
       }
@@ -26,4 +24,13 @@ function replaceContent() {
     }
 }
 
-window.replaceContent = replaceContent;
+fetch('/api/docs-dynamic-content', { credentials: 'include' }).then(async res => {
+  if (!res.ok) {
+    console.error('Failed to load dynamic content', res.status);
+  }
+
+  const content = await res.json();
+
+  replaceContent(content);
+});
+
