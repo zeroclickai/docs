@@ -1,0 +1,27 @@
+window.AUTH_TOKEN_HERE = 'TEST-TOKEN';
+
+(function() {
+    const replace = () => {
+      const walker = document.createTreeWalker(
+        document.body,
+        NodeFilter.SHOW_TEXT,
+        null
+      );
+
+      let node;
+      while ((node = walker.nextNode())) {
+        if (node.textContent.includes('{{')) {
+          node.textContent = node.textContent.replace(
+            /\{\{(\w+)\}\}/g,
+            (match, name) => window[name] ?? match
+          );
+        }
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', replace);
+    } else {
+      replace();
+    }
+  })();
