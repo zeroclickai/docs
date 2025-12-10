@@ -10,9 +10,9 @@ function replaceContent() {
 
       let node;
       while ((node = walker.nextNode())) {
-        if (node.textContent.includes('{{')) {
+        if (node.textContent.includes('((')) {
           node.textContent = node.textContent.replace(
-            /\{\{(\w+)\}\}/g,
+            /\(\((\w+)\)\)/g,
             (match, name) => window[name] ?? match
           );
         }
