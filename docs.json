@@ -4,11 +4,26 @@
   "head": [
     "<script src=\"/dynamic-content.js\"></script>"
   ],
-  "name": "ZeroClick MCP",
+  "name": "ZeroClick",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#5C59FE",
+    "light": "#746CFB",
+    "dark": "#4844E6"
+  },
+  "font": {
+    "headings": {
+      "family": "Inter"
+    },
+    "body": {
+      "family": "Inter"
+    }
+  },
+  "seo": {
+    "indexHiddenPages": false
+  },
+  "metadata": {
+    "og:site_name": "ZeroClick Developer Docs",
+    "og:description": "Integrate AI-native advertising into your applications with ZeroClick's MCP Server"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -44,7 +59,7 @@
       "anchors": [
         {
           "anchor": "Dashboard",
-          "href": "https://developer.zeroclick.ai",
+          "href": "/",
           "icon": "gauge"
         },
         {
@@ -69,14 +84,7 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://developer.zeroclick.ai"
-    }
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/zeroclick",
-      "github": "https://github.com/zeroclick",
-      "linkedin": "https://linkedin.com/company/zeroclick"
+      "href": "/"
     }
   }
 }
