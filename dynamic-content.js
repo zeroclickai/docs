@@ -1,6 +1,9 @@
 let dynamicContent = null;
+let isProcessing = false;
 
 function replaceInNode(node, source) {
+  if (!node || !source || !(node instanceof Node)) return;
+
   const walker = document.createTreeWalker(
     node,
     NodeFilter.SHOW_TEXT,
@@ -35,32 +38,61 @@ function replaceInNode(node, source) {
       wrapper.innerHTML = newContent;
 
       const parent = textNode.parentNode;
-      while (wrapper.firstChild) {
-        parent.insertBefore(wrapper.firstChild, textNode);
+      if (parent) {
+        while (wrapper.firstChild) {
+          parent.insertBefore(wrapper.firstChild, textNode);
+        }
+        parent.removeChild(textNode);
       }
-      parent.removeChild(textNode);
     } else {
       textNode.textContent = text.replace(pattern, (m, name) => source[name] ?? m);
     }
   });
 }
 
+function processDocument(source) {
+  if (isProcessing) return;
+  isProcessing = true;
+
+  requestAnimationFrame(() => {
+    replaceInNode(document.body, source);
+    isProcessing = false;
+  });
+}
+
 function setupMutationObserver(source) {
   const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          replaceInNode(node, source);
-        } else if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('((')) {
-          replaceInNode(node.parentNode, source);
+    let needsProcessing = false;
+
+    for (const mutation of mutations) {
+      if (mutation.type === 'childList') {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE && node.textContent.includes('((')) {
+            needsProcessing = true;
+            break;
+          } else if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('((')) {
+            needsProcessing = true;
+            break;
+          }
         }
-      });
-    });
+      } else if (mutation.type === 'characterData') {
+        if (mutation.target.textContent.includes('((')) {
+          needsProcessing = true;
+        }
+      }
+
+      if (needsProcessing) break;
+    }
+
+    if (needsProcessing) {
+      processDocument(source);
+    }
   });
 
   observer.observe(document.body, {
     childList: true,
-    subtree: true
+    subtree: true,
+    characterData: true
   });
 }
 
