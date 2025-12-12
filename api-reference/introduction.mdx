@@ -1,33 +1,53 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "API Reference"
+description: "Connection protocol, example requests, and error handling"
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Connection Protocol
 
-## Welcome
+The MCP server uses **streamable HTTP** with the following specifications:
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+- **Transport**: Streamable HTTP
+- **Accept Header**: `application/json text/event-stream`
+- **Protocol**: JSON-RPC 2.0 over HTTP
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Example Request
 
-## Authentication
+```bash
+curl -X POST https://mcp.zeroclick.ai \
+  -H "Content-Type: application/json" \
+  -H "x-tenant-api-key: your-api-key-here" \
+  -H "x-tenant-llm-model: gpt-4o" \
+  -H "x-tenant-grouping-id: website-1" \
+  -H "x-tenant-user-id: user123" \
+  -H "Accept: application/json text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/list",
+    "params": {},
+    "id": 1
+  }'
+```
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+## Error Handling
+
+The server returns standard JSON-RPC 2.0 error responses:
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32603,
+    "message": "Internal Server Error"
+  },
+  "id": null
+}
 ```
+
+Common error codes:
+
+- `-32700`: Parse error
+- `-32600`: Invalid request
+- `-32601`: Method not found
+- `-32602`: Invalid params
+- `-32603`: Internal error

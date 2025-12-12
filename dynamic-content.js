@@ -24,7 +24,9 @@ function replaceContent(source) {
     }
 }
 
-fetch('/api/docs-dynamic-content', { credentials: 'include' }).then(async res => {
+const API_BASE_URL = 'https://developer.zeroclick.ai';
+
+fetch(`${API_BASE_URL}/api/docs-dynamic-content`).then(async res => {
   if (!res.ok) {
     console.error('Failed to load dynamic content', res.status);
   }

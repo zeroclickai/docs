@@ -1,0 +1,89 @@
+---
+title: "Tools"
+description: "Available tools and how to use them"
+---
+
+The tools available to your integration are selected by your ZeroClick integration specialist based on your product needs and fit. Not all tools listed below will be available to all clients, but this will be discussed with you during your onboarding. These tools should not need to be called manually - the LLM will intelligently select and use them based on user queries. This documentation is provided for developers who want to test tool outputs or understand the available functionality.
+
+## Getting Tool Schemas
+
+To get detailed input/output schemas for all tools, use the OpenAPI specification endpoint. This documents the tools as REST APIs at POST /tools/:toolName. Tools may also be invoked via these REST APIs for manual integrations.
+
+```bash
+curl -H "x-tenant-api-key: YOUR_API_KEY" \
+     -H "x-tenant-llm-model: gpt-4o" \
+     https://mcp.zeroclick.ai/openapi
+```
+
+This returns a complete OpenAPI specification describing all available tools, their input parameters, and response schemas.
+
+<Note>
+Fields marked as nullable are not guaranteed to appear in every response. Many advertisers provide different sets of data, so expect variability in which nullable fields are included per request.
+</Note>
+
+## Custom Offer Rendering
+
+If you need more control over how offers are displayed, there are two approaches for custom rendering:
+
+**Option 1: MCP Integration with Custom Rendering**
+
+Integrate the MCP server with your LLM but render the tool output yourself. Contact your ZeroClick integration specialist to request updated instructions that prevent the LLM from incorporating tool output into responses. You can then extract the structured data from the tool output and render it however you wish.
+
+**Option 2: REST API Integration**
+
+Use an LLM or other mechanism to determine when to call the tool and what input to send, then invoke the tool directly via REST (POST /tools/:toolName). You have full control over how to handle and display the response.
+
+For either approach, see the Getting Tool Schemas section above for instructions on retrieving the schema for the structured response.
+
+## Available Tools
+
+### get_offers
+
+Accepts a raw user query, parses intent, and returns relevant offers. May return commerce, information, or local offers based on the detected intent.
+
+**Use Cases:**
+
+- Useful for models that struggle with multiple tools and detailed intent classification instructions.
+
+### get_commerce_offers
+
+Retrieves offers for commerce/transaction-related searches.
+
+**Use Cases:**
+
+- Product recommendations ("Best running shoes")
+- Brand comparisons ("iPhone vs Samsung")
+- Purchase intent ("Buy Nike Air Max")
+- Deal searches ("Deals on TVs")
+
+### get_local_offers
+
+Fetches offers for local businesses and services.
+
+**Use Cases:**
+
+- Location-based searches ("Pizza near me")
+- Local services ("Dentists in Seattle")
+- Area-specific queries ("Gyms close to downtown")
+
+### get_information_offers
+
+Retrieves offers for information and educational content.
+
+**Use Cases:**
+
+- How-to guides ("How to choose ski goggles")
+- Educational content ("What is GORE-TEX")
+- Learning resources ("Guide to wine tasting")
+
+### get_technical_offers
+
+Retrieves offers for B2B companies, SaaS products, and technical solutions. This tool is designed to surface relevant ads in AI-assisted coding surfaces or other highly technical environments.
+
+**Use Cases:**
+
+- Developer tools ("Best CI/CD platforms")
+- SaaS recommendations ("Project management software for engineering teams")
+- Cloud infrastructure ("AWS alternatives for startups")
+- Technical services ("Code review tools")
+- B2B solutions ("Enterprise authentication providers")
