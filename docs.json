@@ -59,7 +59,7 @@
       "anchors": [
         {
           "anchor": "Dashboard",
-          "href": "/",
+          "href": "https://developer.zeroclick.ai/",
           "icon": "gauge"
         },
         {
@@ -84,7 +84,7 @@
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "/"
+      "href": "https://developer.zeroclick.ai/"
     }
   }
 }
