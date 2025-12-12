@@ -1,0 +1,95 @@
+---
+title: "Impression Tracking"
+description: "Track when offers are displayed to users for analytics"
+---
+
+ZeroClick provides automated or manual impression tracking for analytics. Impressions are tracked when offers are displayed in the user's viewport, helping you understand which offers are actually seen by users.
+
+## Option 1: Client SDK (Recommended)
+
+The easiest way to track impressions is using the ZeroClick Client SDK. Add the following script tag to your HTML:
+
+```html
+<script src="https://cdn.zeroclick.ai/scripts/mcp-v1.0.0.js"></script>
+```
+
+### Configuration Attributes
+
+- **`data-target`** (optional): CSS selector for the element that should be watched for impressions
+  - **IMPORTANT**: selector must return a _single_ element which contains all chat messages
+  - Example: `#chat`
+  - Default `document.body`
+
+- **`data-offer-id-regex`** (optional): Custom regex pattern to parse offer IDs from anchor link `href` values
+  - Useful when using custom URL structures - otherwise this should be omitted
+  - The regex should contain a capture group for the offer ID
+  - Example: `"/api/v1/offers/([^/?]+)"` matches `https://example.com/api/v1/offers/abc-123`
+  - Example: `"offer-(\d+)"` matches `https://mycustomlink.com/offers/offer-123`
+  - Example: `"offers/([a-zA-Z0-9-]+)"` matches `https://example.com/offers/abc-123`
+  - If not provided, the SDK will look for standard offer ID formats
+
+### Example Usage
+
+**Basic usage with standard offer links and target element:**
+
+```html
+<script
+  src="https://cdn.zeroclick.ai/scripts/mcp-v1.0.0.js"
+  data-target="#chat"
+></script>
+
+<div id="chat">
+  <div class="offer-item">
+    <a href="https://mcp.zeroclick.ai/offers/12345">View Offer</a>
+  </div>
+</div>
+```
+
+**Custom URL structure:**
+
+```html
+<script
+  src="https://cdn.zeroclick.ai/scripts/mcp-v1.0.0.js"
+  data-target="#chat"
+  data-offer-id-regex="products/offer-(\d+)"
+></script>
+
+<div id="chat">
+  <div class="product-card">
+    <a href="https://mystore.com/products/offer-67890">Shop Now</a>
+  </div>
+</div>
+```
+
+## Option 2: Manual Tracking via API
+
+For more control over impression tracking, you can manually call the tracking endpoint. This is useful when you're already parsing tool call results server-side or need custom tracking logic or want fine grained control over the logic.
+
+**Endpoint:** `POST https://mcp.zeroclick.ai/api/v1/offers/t`
+
+**Request Body:**
+
+```json
+{
+  "aiOfferIds": ["offer-id-1", "offer-id-2", "offer-id-3"]
+}
+```
+
+**Client-side example:**
+
+```javascript
+const trackImpressions = async (offerIds) => {
+  await fetch("https://mcp.zeroclick.ai/api/v1/offers/t", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      aiOfferIds: offerIds,
+    }),
+  });
+};
+
+// Track multiple offers at once
+trackImpressions(["offer-123", "offer-456", "offer-789"]);
+```

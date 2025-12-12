@@ -1,0 +1,67 @@
+---
+title: "Testing"
+description: "Test tools and schemas with curl examples"
+---
+
+## Get Available Tools via MCP Initialize
+
+```bash
+curl -X POST https://mcp.zeroclick.ai \
+  -H "Content-Type: application/json" \
+  -H "x-tenant-api-key: YOUR_API_KEY" \
+  -H "x-tenant-llm-model: gpt-4o" \
+  -H "Accept: application/json text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "clientInfo": {
+        "name": "test-client",
+        "version": "1.0.0"
+      }
+    },
+    "id": 1
+  }'
+```
+
+## List Available Tools
+
+```bash
+curl -X POST https://mcp.zeroclick.ai \
+  -H "Content-Type: application/json" \
+  -H "x-tenant-api-key: YOUR_API_KEY" \
+  -H "x-tenant-llm-model: gpt-4o" \
+  -H "Accept: application/json text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/list",
+    "params": {},
+    "id": 2
+  }'
+```
+
+## Test Offers Tools
+
+```bash
+curl -X POST https://mcp.zeroclick.ai \
+  -H "Content-Type: application/json" \
+  -H "x-tenant-api-key: YOUR_API_KEY" \
+  -H "x-tenant-llm-model: gpt-4o" \
+  -H "Accept: application/json text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "get_commerce_offers",
+      "arguments": {
+        "query": "running shoes",
+        "intent": "commerce"
+      }
+    },
+    "id": 3
+  }'
+```
