@@ -1,7 +1,23 @@
 let dynamicContent = null;
 let isProcessing = false;
+let markedLoaded = false;
 
-function replaceInNode(node, source) {
+function loadMarked() {
+  return new Promise((resolve, reject) => {
+    if (window.marked) {
+      resolve(window.marked);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    script.onload = () => resolve(window.marked);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+function replaceInNode(node, source, marked) {
   if (!node || !source || !(node instanceof Node)) return;
 
   const walker = document.createTreeWalker(
@@ -21,19 +37,21 @@ function replaceInNode(node, source) {
   nodesToReplace.forEach((textNode) => {
     const text = textNode.textContent;
     const pattern = /\(\((\w+)\)\)/g;
-    let match;
-    let hasHtmlReplacement = false;
 
-    while ((match = pattern.exec(text)) !== null) {
-      const replacement = source[match[1]];
-      if (replacement && replacement.includes('<')) {
-        hasHtmlReplacement = true;
-        break;
+    const hasMatch = pattern.test(text);
+    if (!hasMatch) return;
+
+    pattern.lastIndex = 0;
+
+    const newContent = text.replace(pattern, (m, name) => {
+      const replacement = source[name];
+      if (replacement) {
+        return marked.parse(replacement);
       }
-    }
+      return m;
+    });
 
-    if (hasHtmlReplacement) {
-      const newContent = text.replace(pattern, (m, name) => source[name] ?? m);
+    if (newContent !== text) {
       const wrapper = document.createElement('span');
       wrapper.innerHTML = newContent;
 
@@ -44,23 +62,21 @@ function replaceInNode(node, source) {
         }
         parent.removeChild(textNode);
       }
-    } else {
-      textNode.textContent = text.replace(pattern, (m, name) => source[name] ?? m);
     }
   });
 }
 
-function processDocument(source) {
+function processDocument(source, marked) {
   if (isProcessing) return;
   isProcessing = true;
 
   requestAnimationFrame(() => {
-    replaceInNode(document.body, source);
+    replaceInNode(document.body, source, marked);
     isProcessing = false;
   });
 }
 
-function setupMutationObserver(source) {
+function setupMutationObserver(source, marked) {
   const observer = new MutationObserver((mutations) => {
     let needsProcessing = false;
 
@@ -85,7 +101,7 @@ function setupMutationObserver(source) {
     }
 
     if (needsProcessing) {
-      processDocument(source);
+      processDocument(source, marked);
     }
   });
 
@@ -96,12 +112,14 @@ function setupMutationObserver(source) {
   });
 }
 
-function init(source) {
+async function init(source) {
   dynamicContent = source;
 
+  const marked = await loadMarked();
+
   const run = () => {
-    replaceInNode(document.body, source);
-    setupMutationObserver(source);
+    replaceInNode(document.body, source, marked);
+    setupMutationObserver(source, marked);
   };
 
   if (document.readyState === 'loading') {
