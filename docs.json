@@ -56,7 +56,7 @@
           },
           {
             "group": "Endpoints",
-            "openapi": "https://mcp.zeroclick-staging.ai/api/v1/analytics/openapi?format=json"
+            "openapi": "https://mcp.zeroclick.ai/api/v1/analytics/openapi?format=json"
           }
         ]
       }
