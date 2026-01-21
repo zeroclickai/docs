@@ -1,9 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "head": [
-    "<script src=\"/dynamic-content.js\"></script>"
-  ],
+  "head": ["<script src=\"/dynamic-content.js\"></script>"],
   "name": "ZeroClick",
   "colors": {
     "primary": "#5C59FE",
@@ -27,48 +25,42 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
+    "anchors": [
       {
-        "tab": "Documentation",
+        "anchor": "Getting Started",
+        "icon": "book",
         "groups": [
           {
             "group": "Getting Started",
-            "pages": [
-              "index",
-              "quickstart"
-            ]
-          },
+            "pages": ["index", "quickstart"]
+          }
+        ]
+      },
+      {
+        "anchor": "Integration",
+        "icon": "plug",
+        "groups": [
           {
             "group": "Integration",
-            "pages": [
-              "impression-tracking",
-              "tools"
-            ]
-          },
+            "pages": ["impression-tracking", "tools"]
+          }
+        ]
+      },
+      {
+        "anchor": "API Reference",
+        "icon": "code",
+        "groups": [
           {
             "group": "Reference",
-            "pages": [
-              "api-reference/introduction",
-              "testing"
-            ]
+            "pages": ["api-reference/introduction", "testing"]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": "https://mcp.zeroclick.ai/api/v1/analytics/openapi?format=json"
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Dashboard",
-          "href": "https://developer.zeroclick.ai/",
-          "icon": "gauge"
-        },
-        {
-          "anchor": "Support",
-          "href": "mailto:developers@zeroclick.ai",
-          "icon": "envelope"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
