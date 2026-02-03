@@ -1,0 +1,272 @@
+---
+title: "Testing"
+description: "Test and debug your MCP V2 integration"
+---
+
+This guide covers how to test your MCP V2 integration and troubleshoot common issues.
+
+## Manual Testing with cURL
+
+You can test the MCP server directly using cURL. The server uses the MCP JSON-RPC protocol.
+
+### Test Authentication
+
+Verify your API key is valid:
+
+```bash
+curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "x-zc-api-key: YOUR_API_KEY" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": {
+        "name": "test-client",
+        "version": "1.0.0"
+      }
+    },
+    "id": 1
+  }'
+```
+
+**Expected response**: Server capabilities and protocol version.
+
+**Error response** (invalid key):
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+### List Available Tools
+
+```bash
+curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "x-zc-api-key: YOUR_API_KEY" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/list",
+    "params": {},
+    "id": 2
+  }'
+```
+
+**Expected response**: List of available tools including `broadcast_signal`.
+
+### Send a Test Signal
+
+```bash
+curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "x-zc-api-key: YOUR_API_KEY" \
+  -H "x-zc-user-id: test-user-123" \
+  -H "x-zc-user-session-id: test-session-456" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "broadcast_signal",
+      "arguments": {
+        "signals": [{
+          "category": "interest",
+          "confidence": 0.85,
+          "subject": "test signal",
+          "sentiment": "positive"
+        }]
+      }
+    },
+    "id": 3
+  }'
+```
+
+**Expected response**:
+```json
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Signals broadcasted successfully"
+    }
+  ],
+  "structuredContent": {
+    "success": true
+  }
+}
+```
+
+## SDK Testing
+
+### TypeScript Test Script
+
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@anthropic-ai/mcp-remote";
+
+async function testConnection() {
+  const transport = new StreamableHTTPClientTransport(
+    new URL("https://mcp.zeroclick.ai/mcp/v2"),
+    {
+      requestInit: {
+        headers: {
+          "x-zc-api-key": process.env.ZEROCLICK_API_KEY!
+        }
+      }
+    }
+  );
+
+  const client = new Client({
+    name: "test-client",
+    version: "1.0.0"
+  });
+
+  try {
+    // Test connection
+    await client.connect(transport);
+    console.log("Connected successfully");
+
+    // List tools
+    const { tools } = await client.listTools();
+    console.log("Available tools:", tools.map(t => t.name));
+
+    // Send test signal
+    const result = await client.callTool({
+      name: "broadcast_signal",
+      arguments: {
+        signals: [{
+          category: "interest",
+          confidence: 0.85,
+          subject: "test signal"
+        }]
+      }
+    });
+    console.log("Signal result:", result);
+
+    await client.close();
+    console.log("Test completed successfully");
+  } catch (error) {
+    console.error("Test failed:", error);
+    process.exit(1);
+  }
+}
+
+testConnection();
+```
+
+Run the test:
+```bash
+ZEROCLICK_API_KEY=your-key npx tsx test-connection.ts
+```
+
+## Common Issues
+
+### 401 Unauthorized
+
+**Cause**: Invalid or missing API key.
+
+**Solution**:
+- Verify your API key is correct
+- Ensure the header is `x-zc-api-key` (not `x-tenant-api-key`)
+- Check for extra whitespace in the key
+
+### Connection Timeout
+
+**Cause**: Network issues or firewall blocking.
+
+**Solution**:
+- Verify you can reach `mcp.zeroclick.ai`
+- Check if your network allows HTTPS connections
+- Try from a different network
+
+### Invalid Signal Schema
+
+**Cause**: Signal data doesn't match expected format.
+
+**Example error**:
+```json
+{
+  "error": {
+    "code": -32602,
+    "message": "Invalid params: confidence must be between 0 and 1"
+  }
+}
+```
+
+**Solution**:
+- Ensure `confidence` is a number between 0.0 and 1.0
+- Ensure `category` is one of the valid categories
+- Ensure `subject` is a non-empty string under 500 characters
+- Ensure `signals` array has 1-10 items
+
+### Tool Not Found
+
+**Cause**: Calling a tool that doesn't exist.
+
+**Solution**: Use `tools/list` to see available tools. The MCP V2 only exposes `broadcast_signal`.
+
+## Debugging Tips
+
+### Enable SDK Logging
+
+```typescript
+const client = new Client({
+  name: "your-agent",
+  version: "1.0.0"
+}, {
+  // Enable debug logging
+  logger: console
+});
+```
+
+### Log All Headers
+
+Verify your headers are being sent correctly:
+
+```typescript
+const headers = {
+  "x-zc-api-key": process.env.ZEROCLICK_API_KEY,
+  "x-zc-user-id": userId,
+  "x-zc-user-session-id": sessionId
+};
+
+// Log headers (redact API key in production)
+console.log("Request headers:", {
+  ...headers,
+  "x-zc-api-key": headers["x-zc-api-key"] ? "[REDACTED]" : "MISSING"
+});
+```
+
+### Validate Signal Before Sending
+
+```typescript
+function validateSignal(signal: unknown): boolean {
+  if (typeof signal !== "object" || signal === null) return false;
+
+  const s = signal as Record<string, unknown>;
+
+  // Required fields
+  if (typeof s.category !== "string") return false;
+  if (typeof s.confidence !== "number" || s.confidence < 0 || s.confidence > 1) return false;
+  if (typeof s.subject !== "string" || s.subject.length === 0 || s.subject.length > 500) return false;
+
+  // Valid categories
+  const validCategories = [
+    "interest", "evaluation", "problem", "purchase_intent",
+    "price_sensitivity", "brand_affinity", "user_context",
+    "business_context", "recommendation_request"
+  ];
+  if (!validCategories.includes(s.category)) return false;
+
+  return true;
+}
+```
+
+## Verifying Signals Were Received
+
+Contact your ZeroClick integration specialist to verify signals are being received correctly.

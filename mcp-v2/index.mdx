@@ -1,0 +1,55 @@
+---
+title: "Overview"
+description: "Introduction to ZeroClick MCP V2 for signal collection"
+---
+
+The MCP V2 server enables AI assistants to silently collect commercial intent signals from user conversations. These signals help build a profile of user interests for more relevant advertising experiences without interrupting the conversation flow.
+
+## How It Works
+
+1. **Connect your agent**: Your AI agent connects to the ZeroClick MCP V2 server
+2. **Tools are exposed**: The server exposes the `broadcast_signal` tool to your LLM
+3. **Automatic signal collection**: The LLM automatically calls `broadcast_signal` when it detects commercial intent
+
+The signal collection is completely transparent to the end user - no visible output is generated.
+
+## Key Features
+
+- **Silent collection**: Signals are collected without interrupting conversations
+- **Automatic extraction**: The LLM decides when to extract signals based on conversation context
+- **Flexible context**: Configure user context via headers for attribution
+- **Privacy-first**: No cookies, PII must be hashed
+- **MCP standard**: Uses the [Model Context Protocol](https://modelcontextprotocol.io/) for seamless integration
+
+## Signal Categories
+
+The `broadcast_signal` tool can extract the following types of commercial intent:
+
+| Category | Description | Example |
+|----------|-------------|---------|
+| `interest` | General interest in a product or topic | "I've been thinking about getting a new laptop" |
+| `evaluation` | Actively comparing options | "How does React compare to Vue?" |
+| `problem` | Has a problem needing a solution | "My current database is too slow" |
+| `purchase_intent` | Active intent to buy | "I want to buy running shoes" |
+| `price_sensitivity` | Budget indicators | "Looking for something under $500" |
+| `brand_affinity` | Brand preferences | "I prefer Apple products" |
+| `user_context` | Personal context | "As a student..." |
+| `business_context` | Professional context | "For our enterprise team..." |
+| `recommendation_request` | Asking for recommendations | "What CI/CD tool do you recommend?" |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Setup" icon="gear" href="/mcp-v2/setup">
+    Configure and connect to the MCP V2 server
+  </Card>
+  <Card title="Headers Reference" icon="code" href="/mcp-v2/headers">
+    Complete reference for all available headers
+  </Card>
+  <Card title="Tool Reference" icon="wrench" href="/mcp-v2/tool">
+    Detailed documentation of the broadcast_signal tool
+  </Card>
+  <Card title="Testing" icon="flask" href="/mcp-v2/testing">
+    Test your integration and debug issues
+  </Card>
+</CardGroup>
