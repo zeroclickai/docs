@@ -14,7 +14,7 @@ You can test the MCP server directly using cURL. The server uses the MCP JSON-RP
 Verify your API key is valid:
 
 ```bash
-curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
+curl -X POST https://zero.click/mcp/v2 \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "x-zc-api-key: YOUR_API_KEY" \
@@ -45,7 +45,7 @@ curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
 ### List Available Tools
 
 ```bash
-curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
+curl -X POST https://zero.click/mcp/v2 \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "x-zc-api-key: YOUR_API_KEY" \
@@ -62,12 +62,14 @@ curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
 ### Send a Test Signal
 
 ```bash
-curl -X POST https://mcp.zeroclick.ai/mcp/v2 \
+curl -X POST https://zero.click/mcp/v2 \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "x-zc-api-key: YOUR_API_KEY" \
   -H "x-zc-user-id: test-user-123" \
   -H "x-zc-user-session-id: test-session-456" \
+  -H "x-zc-user-locale: en-US" \
+  -H "x-zc-grouping-id: test-campaign" \
   -d '{
     "jsonrpc": "2.0",
     "method": "tools/call",
@@ -111,7 +113,7 @@ import { StreamableHTTPClientTransport } from "@anthropic-ai/mcp-remote";
 
 async function testConnection() {
   const transport = new StreamableHTTPClientTransport(
-    new URL("https://mcp.zeroclick.ai/mcp/v2"),
+    new URL("https://zero.click/mcp/v2"),
     {
       requestInit: {
         headers: {
@@ -180,7 +182,7 @@ ZEROCLICK_API_KEY=your-key npx tsx test-connection.ts
 **Cause**: Network issues or firewall blocking.
 
 **Solution**:
-- Verify you can reach `mcp.zeroclick.ai`
+- Verify you can reach `zero.click`
 - Check if your network allows HTTPS connections
 - Try from a different network
 
@@ -232,7 +234,9 @@ Verify your headers are being sent correctly:
 const headers = {
   "x-zc-api-key": process.env.ZEROCLICK_API_KEY,
   "x-zc-user-id": userId,
-  "x-zc-user-session-id": sessionId
+  "x-zc-user-session-id": sessionId,
+  "x-zc-user-locale": userLocale,
+  "x-zc-grouping-id": groupingId
 };
 
 // Log headers (redact API key in production)

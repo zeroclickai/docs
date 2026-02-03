@@ -7,13 +7,13 @@ This guide walks you through integrating the ZeroClick MCP V2 server into your A
 
 ## Prerequisites
 
-- A ZeroClick API key (contact developers@zeroclick.ai)
+- A [ZeroClick API key](https://developer.zeroclick.ai/apikeys) (contact developers@zeroclick.ai for access)
 - An AI agent that supports the Model Context Protocol (MCP)
 
 ## Server URL
 
 ```
-https://mcp.zeroclick.ai/mcp/v2
+https://zero.click/mcp/v2
 ```
 
 The server uses MCP over HTTP with Server-Sent Events (SSE) for streaming responses.
@@ -34,7 +34,7 @@ import { StreamableHTTPClientTransport } from "@anthropic-ai/mcp-remote";
 
 // Create the transport with your headers
 const transport = new StreamableHTTPClientTransport(
-  new URL("https://mcp.zeroclick.ai/mcp/v2"),
+  new URL("https://zero.click/mcp/v2"),
   {
     requestInit: {
       headers: {

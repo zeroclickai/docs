@@ -21,7 +21,7 @@ The `x-zc-api-key` header is required for all requests:
 x-zc-api-key: YOUR_API_KEY
 ```
 
-Contact your ZeroClick integration specialist or developers@zeroclick.ai to obtain your API key.
+Obtain your API key from the [ZeroClick Developer Portal](https://developer.zeroclick.ai/apikeys) (contact developers@zeroclick.ai for access).
 
 Requests without a valid API key will receive a `401 Unauthorized` response.
 
@@ -46,10 +46,33 @@ A unique identifier for the end user. This can be your internal user ID, a hashe
 x-zc-user-session-id: session-abc-456
 ```
 
-A unique identifier for the current session.
+Current session or chat thread.
 
 - **Format**: String, max 255 characters
 - **Use case**: Group signals within a single conversation or browsing session
+
+### x-zc-user-locale
+
+```
+x-zc-user-locale: en-US
+```
+
+The end user's locale or language preference.
+
+- **Format**: String, max 35 characters (BCP 47 language tag)
+- **Use case**: Localization and language-specific signal analysis
+- **Examples**: `en-US`, `fr-FR`, `zh-Hans-CN`
+
+### x-zc-grouping-id
+
+```
+x-zc-grouping-id: campaign-summer-2024
+```
+
+An optional grouping identifier for organizing signals.
+
+- **Format**: String, max 255 characters
+- **Use case**: Group signals by campaign, experiment, or custom segmentation
 
 ### x-zc-user-ip
 
@@ -114,6 +137,8 @@ const headers = {
   // User context
   "x-zc-user-id": "user-12345",
   "x-zc-user-session-id": "session-abc-789",
+  "x-zc-user-locale": "en-US",
+  "x-zc-grouping-id": "campaign-summer-2024",
   "x-zc-user-ip": clientIp,
   "x-zc-user-agent": req.headers["user-agent"],
 
