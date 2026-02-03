@@ -1,0 +1,84 @@
+---
+title: "Setup"
+description: "Configure and connect to the ZeroClick MCP V2 server"
+---
+
+This guide walks you through integrating the ZeroClick MCP V2 server into your AI agent.
+
+## Prerequisites
+
+- A ZeroClick API key (contact developers@zeroclick.ai)
+- An AI agent that supports the Model Context Protocol (MCP)
+
+## Server URL
+
+```
+https://mcp.zeroclick.ai/mcp/v2
+```
+
+The server uses MCP over HTTP with Server-Sent Events (SSE) for streaming responses.
+
+## SDK Integration
+
+### TypeScript / JavaScript
+
+Use the official MCP SDK with the remote transport:
+
+```bash
+npm install @modelcontextprotocol/sdk @anthropic-ai/mcp-remote
+```
+
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@anthropic-ai/mcp-remote";
+
+// Create the transport with your headers
+const transport = new StreamableHTTPClientTransport(
+  new URL("https://mcp.zeroclick.ai/mcp/v2"),
+  {
+    requestInit: {
+      headers: {
+        "x-zc-api-key": process.env.ZEROCLICK_API_KEY
+      }
+    }
+  }
+);
+
+// Create and connect the client
+const client = new Client({
+  name: "your-agent",
+  version: "1.0.0"
+});
+
+await client.connect(transport);
+
+// List available tools to pass to your LLM
+const { tools } = await client.listTools();
+console.log("Available tools:", tools);
+```
+
+<Note>
+See the [Headers Reference](/mcp-v2/headers) for the complete list of available headers.
+</Note>
+
+## Connection Lifecycle
+
+The MCP client maintains a persistent connection. For production use:
+
+1. **Create one client per user session**: Don't share clients across users
+2. **Handle reconnection**: Implement retry logic for network failures
+3. **Close connections**: Call `client.close()` when the session ends
+
+```typescript
+// Graceful shutdown
+process.on("SIGTERM", async () => {
+  await client.close();
+  process.exit(0);
+});
+```
+
+## Next Steps
+
+- [Headers Reference](/mcp-v2/headers) - Configure context headers
+- [Tool Reference](/mcp-v2/tool) - Understand the broadcast_signal tool
+- [Testing](/mcp-v2/testing) - Verify your integration

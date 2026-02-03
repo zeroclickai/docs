@@ -1,0 +1,140 @@
+---
+title: "Headers Reference"
+description: "Complete reference for MCP V2 headers"
+---
+
+This page documents all headers accepted by the MCP V2 server.
+
+## Required Headers
+
+| Header | Description |
+|--------|-------------|
+| `x-zc-api-key` | Your ZeroClick API key for authentication |
+| `Content-Type` | Must be `application/json` |
+| `Accept` | Must include `application/json, text/event-stream` |
+
+## Authentication
+
+The `x-zc-api-key` header is required for all requests:
+
+```
+x-zc-api-key: YOUR_API_KEY
+```
+
+Contact your ZeroClick integration specialist or developers@zeroclick.ai to obtain your API key.
+
+Requests without a valid API key will receive a `401 Unauthorized` response.
+
+## User Context Headers
+
+All user context headers use the `x-zc-user-*` prefix to clearly identify end-user information.
+
+### x-zc-user-id
+
+```
+x-zc-user-id: user-123
+```
+
+A unique identifier for the end user. This can be your internal user ID, a hashed value, or any consistent identifier.
+
+- **Format**: String, max 255 characters
+- **Use case**: Aggregate signals per user for personalization
+
+### x-zc-user-session-id
+
+```
+x-zc-user-session-id: session-abc-456
+```
+
+A unique identifier for the current session.
+
+- **Format**: String, max 255 characters
+- **Use case**: Group signals within a single conversation or browsing session
+
+### x-zc-user-ip
+
+```
+x-zc-user-ip: 192.168.1.1
+```
+
+The end user's IP address.
+
+- **Format**: String, max 45 characters (supports IPv4 and IPv6)
+
+### x-zc-user-agent
+
+```
+x-zc-user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...
+```
+
+The end user's browser or client user agent string.
+
+- **Format**: String, max 1000 characters
+- **Use case**: Device and browser analytics
+
+## Privacy-Safe PII Headers
+
+For identity resolution across platforms, you can pass hashed PII values:
+
+<Warning>
+Never send raw email or phone values. Always hash with SHA256 before sending.
+</Warning>
+
+### x-zc-user-email-sha256
+
+```
+x-zc-user-email-sha256: 5d41402abc4b2a76b9719d911017c592...
+```
+
+SHA256 hash of the user's lowercase, trimmed email address.
+
+- **Format**: 64-character hexadecimal string
+- **Preparation**: `SHA256(email.toLowerCase().trim())`
+
+### x-zc-user-phone-sha256
+
+```
+x-zc-user-phone-sha256: 7d793037a0760186574b0282f2f435e7...
+```
+
+SHA256 hash of the user's phone number in E.164 format.
+
+- **Format**: 64-character hexadecimal string
+- **Preparation**: `SHA256(phone)` where phone is in E.164 format (e.g., `+14155551234`)
+
+## Example: Full Header Set
+
+```typescript
+const headers = {
+  // Required
+  "x-zc-api-key": "your-api-key",
+  "Content-Type": "application/json",
+  "Accept": "application/json, text/event-stream",
+
+  // User context
+  "x-zc-user-id": "user-12345",
+  "x-zc-user-session-id": "session-abc-789",
+  "x-zc-user-ip": clientIp,
+  "x-zc-user-agent": req.headers["user-agent"],
+
+  // Privacy-safe PII (hashed)
+  "x-zc-user-email-sha256": sha256(email.toLowerCase().trim()),
+  "x-zc-user-phone-sha256": sha256(phone)
+};
+```
+
+## Hashing Helper
+
+Here's a helper function for SHA256 hashing:
+
+```typescript
+import { createHash } from "crypto";
+
+function sha256(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+// Usage
+const emailHash = sha256(email.toLowerCase().trim());
+const phoneHash = sha256("+14155551234");  // E.164 format
+```

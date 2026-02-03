@@ -47,6 +47,16 @@
         ]
       },
       {
+        "anchor": "MCP V2",
+        "icon": "signal",
+        "groups": [
+          {
+            "group": "Signal Collection",
+            "pages": ["mcp-v2/index", "mcp-v2/setup", "mcp-v2/headers", "mcp-v2/tool", "mcp-v2/testing"]
+          }
+        ]
+      },
+      {
         "anchor": "API Reference",
         "icon": "code",
         "groups": [
